@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synesthetic Color Visualizer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Barlow:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: #f0f0f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem; /* Add some padding around the content */
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif; /* Corrected typo from sans-size */
+            font-size: clamp(1.8rem, 5vw, 2.5rem); /* Responsive font size */
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #2c3e50;
+            margin: 0 0 1rem; /* Adjusted margin */
+        }
+        
+        h2 { /* Added for the descriptive title */
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #e91d63; /* Using one of your button colors for consistency */
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-family: 'Barlow', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.16rem); /* Responsive font size */
+            line-height: 1.6;
+            color: #555;
+            max-width: 700px; /* Increased max-width for better readability */
+            margin: 0 auto 1rem; /* Centered paragraph */
+            text-align: left; /* Aligned text to the left for readability */
+        }
+        
+        p.intro-paragraph { /* Specific style for the first intro paragraph */
+            font-size: clamp(1.1rem, 2.8vw, 1.3rem);
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .visualizer-area-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #visualizerCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            z-index: 1;
+        }
+
+        .note-buttons-source {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .note-button {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            border-radius: 50%;
+            cursor: grab;
+            transition: transform 0.2s ease;
+            user-select: none;
+            position: relative;
+            z-index: 10;
+        }
+
+        .note-button.dragging {
+            cursor: grabbing;
+            opacity: 0.8;
+            transform: scale(1.1);
+            position: fixed;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .note-button.dropped {
+            position: absolute;
+            z-index: 50;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Note colors are now for visual reference only */
+        .C { background-color: #e74c3c; } /* red */
+        .D { background-color: #e67e22; } /* orange */
+        .E { background-color: #f1c40f; } /* yellow */
+        .F { background-color: #2ecc71; } /* green */
+        .G { background-color: #3498db; } /* blue */
+        .A { background-color: #9b59b6; } /* purple */
+        .B { background-color: #34495e; } /* dark blue/indigo */
+
+        .buttons-bottom {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+            flex-wrap: wrap; /* Added for responsiveness */
+        }
+
+        button, select {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            background-color: #e91d63;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(233, 29, 99, 0.3);
+            font-family: 'Barlow', sans-serif;
+            text-transform: uppercase;
+            min-width: 100px; /* Ensure buttons don't get too small */
+        }
+
+        button:hover, select:hover {
+            background-color: #c81955;
+        }
+
+        button:active, select:active {
+            transform: scale(0.98);
+        }
+
+        button.reset {
+            background-color: #c81955;
+        }
+
+        button.reset:hover {
+            background-color: #a81747;
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            padding-right: 2.5rem; /* Space for dropdown arrow */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.1L146.2%20227.4%2018.7%2074.5a17.6%2017.6%200%200%200-25.3-23.7c-7.2%206.5-7.7%2017.9-1.3%2025.3l137.8%20140.2c6.4%206.5%2017.7%206.5%2024.1%200l137.8-140.2a17.6%2017.6%200%200%200-12.9-30.7z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 0.8em;
+        }
+        select option {
+            background-color: #fff;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Synesthesia Color and Sound</h1>
+        <p class="intro-paragraph">How a Synesthete Experiences Sound and Color</p>
+        <p>Imagine you're listening to music, but at the same time, your brain is automatically drawing pictures or colors for you. That's a bit like what synesthesia is.</p>
+        <p>Here's what makes it different from just thinking about colors:</p>
+        <p><strong>It's Involuntary:</strong> A synesthete doesn't choose to see a color when they hear a note. It just happens, automatically, without any effort. It’s like how you can't help but see the color red when you look at a red apple.</p>
+        <p><strong>It's Consistent:</strong> The colors never change. If the musical note C appears as a fiery red today, it will be the same fiery red tomorrow, next month, and ten years from now. This makes the experience reliable and stable for the person.</p>
+        <p><strong>It's a "Second" Sense:</strong> The person still hears the sound with their ears, but they also get an additional, internal experience in their mind's eye. It’s not a hallucination, but a very real and distinct perception.</p>
+        <p>In our project, when you drag a note like E (yellow), the canvas immediately turns yellow. This is a direct model of how a synesthete's brain might work. It's a simple, consistent, and automatic connection that shows you the beauty of how their senses are cross-wired.</p>
+        
+        <h2>Try the Interaction</h2>
+        
+        <div class="visualizer-area-wrapper" id="
