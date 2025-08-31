@@ -213,4 +213,230 @@
         
         <h2>Try the Interaction</h2>
         
-        <div class="visualizer-area-wrapper" id="
+        <div class="visualizer-area-wrapper" id="visualizerAreaWrapper">
+            <canvas id="visualizerCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="buttons-bottom">
+                <button id="startButton">Start</button>
+                <select id="waveformSelector">
+                    <option value="sine">Sine</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                </select>
+                <button id="resetButton" class="reset">Reset</button>
+            </div>
+            <div class="note-buttons-source" id="noteButtonsSource">
+                <div class="note-button C" data-note="C4">C</div>
+                <div class="note-button D" data-note="D4">D</div>
+                <div class="note-button E" data-note="E4">E</div>
+                <div class="note-button F" data-note="F4">F</div>
+                <div class="note-button G" data-note="G4">G</div>
+                <div class="note-button A" data-note="A4">A</div>
+                <div class="note-button B" data-note="B4">B</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.7.58/build/Tone.js"></script>
+
+    <script>
+        window.onload = function () {
+            const visualizerAreaWrapper = document.getElementById('visualizerAreaWrapper');
+            const visualizerCanvas = document.getElementById('visualizerCanvas');
+            const ctx = visualizerCanvas.getContext('2d');
+            const noteButtonsSource = document.getElementById('noteButtonsSource');
+            const startButton = document.getElementById('startButton');
+            const resetButton = document.getElementById('resetButton');
+            const waveformSelector = document.getElementById('waveformSelector');
+
+            let synth, audioActive = false;
+            let draggingButton = null;
+            let currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 }; // Default dark grey for initial canvas
+
+            // Map notes to specific colors, like a synesthete
+            const noteToColorMap = {
+                'C4': { r: 231, g: 76, b: 60, a: 1 }, // Red
+                'D4': { r: 230, g: 126, b: 34, a: 1 }, // Orange
+                'E4': { r: 241, g: 196, b: 15, a: 1 }, // Yellow
+                'F4': { r: 46, g: 204, b: 113, a: 1 }, // Green
+                'G4': { r: 52, g: 152, b: 219, a: 1 }, // Blue
+                'A4': { r: 155, g: 89, b: 182, a: 1 }, // Purple
+                'B4': { r: 52, g: 73, b: 94, a: 1 }, // Dark Blue/Indigo
+            };
+
+            let canvasWidth, canvasHeight;
+            const resizeCanvas = () => {
+                canvasWidth = visualizerAreaWrapper.offsetWidth;
+                canvasHeight = visualizerAreaWrapper.offsetHeight;
+                visualizerCanvas.width = canvasWidth;
+                visualizerCanvas.height = canvasHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const setupAudio = () => {
+                const initialWaveform = waveformSelector.value;
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: initialWaveform },
+                    envelope: { attack: 0.05, decay: 0.8, sustain: 0.6, release: 0.4 }
+                }).toDestination();
+
+                waveformSelector.addEventListener('change', (e) => {
+                    synth.set({
+                        oscillator: { type: e.target.value }
+                    });
+                });
+            };
+
+            const animateVisualizer = () => {
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+                // Draw a single, large circle in the center
+                const radius = Math.min(canvasWidth, canvasHeight) * 0.4;
+                const { r, g, b, a } = currentVisualizerColor;
+                ctx.beginPath();
+                ctx.arc(canvasWidth / 2, canvasHeight / 2, radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+                ctx.fill();
+
+                requestAnimationFrame(animateVisualizer);
+            };
+
+            const handleDragStart = (e) => {
+                if (!audioActive) {
+                    // Changed from console.log to an alert for user visibility
+                    alert('Please click "Start" first to enable audio and interaction.');
+                    return;
+                }
+                
+                e.preventDefault();
+                
+                const originalButton = e.target.closest('.note-button');
+                if (!originalButton || originalButton.classList.contains('dropped')) return;
+
+                draggingButton = originalButton.cloneNode(true);
+                document.body.appendChild(draggingButton);
+                
+                draggingButton.classList.add('dragging');
+                
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', handleDragEnd);
+                document.addEventListener('touchmove', handleDrag, { passive: false });
+                document.addEventListener('touchend', handleDragEnd);
+
+                const x = e.clientX || e.touches[0].clientX;
+                const y = e.clientY || e.touches[0].clientY;
+                draggingButton.style.left = `${x - draggingButton.offsetWidth / 2}px`;
+                draggingButton.style.top = `${y - draggingButton.offsetHeight / 2}px`;
+                
+                const note = draggingButton.dataset.note;
+                synth.triggerAttack(note);
+                currentVisualizerColor = noteToColorMap[note];
+            };
+
+            const handleDrag = (e) => {
+                if (!draggingButton) return;
+                
+                e.preventDefault();
+                
+                const x = (e.clientX || e.touches[0].clientX);
+                const y = (e.clientY || e.touches[0].clientY);
+
+                draggingButton.style.left = `${x - draggingButton.offsetWidth / 2}px`;
+                draggingButton.style.top = `${y - draggingButton.offsetHeight / 2}px`;
+            };
+
+            const handleDragEnd = (e) => {
+                if (!draggingButton) return;
+                
+                const x = (e.clientX || e.changedTouches[0].clientX);
+                const y = (e.clientY || e.changedTouches[0].clientY);
+
+                const rect = visualizerAreaWrapper.getBoundingClientRect();
+                const isInside = (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom);
+                
+                if (isInside) {
+                    const droppedClone = draggingButton;
+                    droppedClone.classList.remove('dragging');
+                    droppedClone.classList.add('dropped');
+                    
+                    droppedClone.style.position = 'absolute';
+                    droppedClone.style.left = `${x - rect.left - droppedClone.offsetWidth / 2}px`;
+                    droppedClone.style.top = `${y - rect.top - droppedClone.offsetHeight / 2}px`;
+                    
+                    visualizerAreaWrapper.appendChild(droppedClone);
+                    
+                } else {
+                    synth.triggerRelease(draggingButton.dataset.note);
+                    draggingButton.remove();
+                    // Reset to a default color if no notes are active
+                    if (visualizerAreaWrapper.querySelectorAll('.note-button.dropped').length === 0) {
+                        currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 };
+                    }
+                }
+                
+                draggingButton = null;
+
+                document.removeEventListener('mousemove', handleDrag);
+                document.removeEventListener('mouseup', handleDragEnd);
+                document.removeEventListener('touchmove', handleDrag);
+                document.removeEventListener('touchend', handleDragEnd);
+            };
+            
+            visualizerAreaWrapper.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropped')) {
+                    const noteToRemove = e.target.dataset.note;
+                    synth.triggerRelease(noteToRemove);
+                    e.target.remove();
+                    // Update color if any notes are still active
+                    const droppedButtons = visualizerAreaWrapper.querySelectorAll('.note-button.dropped');
+                    if (droppedButtons.length > 0) {
+                        const lastDroppedNote = droppedButtons[droppedButtons.length - 1].dataset.note;
+                        currentVisualizerColor = noteToColorMap[lastDroppedNote];
+                    } else {
+                        currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 };
+                    }
+                }
+            });
+
+            const handleReset = () => {
+                if (synth) { // Ensure synth is initialized before calling releaseAll
+                    synth.releaseAll();
+                }
+                const droppedButtons = visualizerAreaWrapper.querySelectorAll('.note-button.dropped');
+                droppedButtons.forEach(button => {
+                    button.remove();
+                });
+                currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 }; // Reset to default canvas color
+            };
+
+            startButton.addEventListener('click', async () => {
+                try {
+                    await Tone.start();
+                    audioActive = true;
+                    console.log('Audio context started successfully. You can now drag the notes.');
+                    startButton.disabled = true;
+                    startButton.textContent = "Started";
+                    setupAudio(); // Setup audio here after Tone.start()
+                    animateVisualizer(); // Start the visualizer loop
+                } catch (error) {
+                    console.error("Failed to start audio context:", error);
+                }
+            });
+
+            document.querySelectorAll('.note-button').forEach(button => {
+                button.addEventListener('mousedown', handleDragStart);
+                button.addEventListener('touchstart', (e) => handleDragStart(e), { passive: false });
+            });
+            
+            resetButton.addEventListener('click', handleReset);
+            
+            // Initial call to animateVisualizer to set the default canvas color
+            animateVisualizer();
+        };
+    </script>
+</body>
+</html>
