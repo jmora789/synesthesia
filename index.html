@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Synesthetic Color Visualizer</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Barlow:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Barlow:wght@400;500;700&display=swap');
 
         body {
             font-family: 'Barlow', sans-serif;
@@ -25,7 +25,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1.5rem; /* Reduced gap for a tighter feel */
+            gap: 1.5rem;
             max-width: 800px;
             width: 100%;
             background-color: #fff;
@@ -35,29 +35,29 @@
         }
 
         h1 {
-            font-family: 'Oswald', sans-serif; /* Changed to Oswald */
-            font-size: 32px; /* Changed to 32pt */
+            font-family: 'Oswald', sans-serif;
+            font-size: 32px;
             font-weight: 700;
             color: #e91d63;
-            margin: 0 0 0; /* Adjusted margin */
+            margin: 0 0 0;
         }
         
         h2.subhead {
             font-family: 'Oswald', sans-serif;
             font-size: clamp(1.2rem, 3vw, 1.8rem);
-            font-weight: 700;
+            font-weight: 400; /* Changed to regular weight */
             text-transform: uppercase;
-            color: #e91d63;
-            margin-top: 0.5rem; /* Reduced margin */
+            color: #333; /* Changed to black */
+            margin-top: 0.5rem;
             margin-bottom: 0.5rem;
         }
 
-        h2.instruction { /* New class for the instruction header */
-            font-family: 'Oswald', sans-serif;
+        h2.instruction {
+            font-family: 'Oswald', sans-serif; /* Changed to Oswald */
             font-size: clamp(1.2rem, 3vw, 1.8rem);
-            font-weight: 700;
+            font-weight: 400; /* Changed to regular weight (not bold) */
             text-transform: uppercase;
-            color: #333;
+            color: #e91d63; /* Changed to match primary color */
             margin: 0;
         }
 
@@ -207,7 +207,7 @@
         <p>Here's what makes it different from just thinking about colors:</p>
         <p><strong>It's Involuntary:</strong> A synesthete doesn't choose to see a color when they hear a note. It just happens, automatically, without any effort. It’s like how you can't help but see the color red when you look at a red apple.</p>
         <p><strong>It's Consistent:</strong> The colors never change. If the musical note C appears as a fiery red today, it will be the same fiery red tomorrow, next month, and ten years from now. This makes the experience reliable and stable for the person.</p>
-        <p><strong>It's a "Second" Sense:</strong> The person still hears the sound with their ears, but they also get an additional, internal experience in their mind's eye. It’s not a hallucination, but a very real and distinct perception.</p>
+        <p><strong>It's a "Second" Sense:</b> The person still hears the sound with their ears, but they also get an additional, internal experience in their mind's eye. It’s not a hallucination, but a very real and distinct perception.</p>
         <p>In our project, when you drag a note like E (yellow), the canvas immediately turns yellow. This is a direct model of how a synesthete's brain might work. It's a simple, consistent, and automatic connection that shows you the beauty of how their senses are cross-wired.</p>
         
         <h2 class="instruction">TRY THE INTERACTION</h2>
