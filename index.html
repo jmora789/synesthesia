@@ -16,7 +16,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 2rem; /* Add some padding around the content */
+            padding: 2rem;
             box-sizing: border-box;
             text-align: center;
         }
@@ -25,7 +25,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem; /* Reduced gap for a tighter feel */
             max-width: 800px;
             width: 100%;
             background-color: #fff;
@@ -35,39 +35,40 @@
         }
 
         h1 {
-            font-family: Arial, sans-serif;
-            font-size: 32px;
-            font-weight: bold;
+            font-family: 'Oswald', sans-serif; /* Changed to Oswald */
+            font-size: 32px; /* Changed to 32pt */
+            font-weight: 700;
             color: #e91d63;
-            margin: 0 0 1rem; /* Adjusted margin */
+            margin: 0 0 0; /* Adjusted margin */
         }
         
-        h2 { /* Added for the descriptive title */
+        h2.subhead {
             font-family: 'Oswald', sans-serif;
             font-size: clamp(1.2rem, 3vw, 1.8rem);
             font-weight: 700;
             text-transform: uppercase;
-            color: #e91d63; /* Using one of your button colors for consistency */
-            margin-top: 1.5rem;
+            color: #e91d63;
+            margin-top: 0.5rem; /* Reduced margin */
             margin-bottom: 0.5rem;
+        }
+
+        h2.instruction { /* New class for the instruction header */
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #333;
+            margin: 0;
         }
 
         p {
             font-family: 'Barlow', sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.16rem); /* Responsive font size */
+            font-size: clamp(1rem, 2.5vw, 1.16rem);
             line-height: 1.6;
             color: #555;
-            max-width: 700px; /* Increased max-width for better readability */
-            margin: 0 auto 1rem; /* Centered paragraph */
-            text-align: left; /* Aligned text to the left for readability */
-        }
-        
-        p.intro-paragraph { /* Specific style for the first intro paragraph */
-            font-size: clamp(1.1rem, 2.8vw, 1.3rem);
-            font-weight: 500;
-            color: #333;
-            text-align: center;
-            margin-bottom: 1.5rem;
+            max-width: 700px;
+            margin: 0 auto;
+            text-align: left;
         }
 
         .visualizer-area-wrapper {
@@ -145,8 +146,7 @@
             justify-content: center;
             gap: 1rem;
             width: 100%;
-            margin-top: 1rem;
-            flex-wrap: wrap; /* Added for responsiveness */
+            flex-wrap: wrap;
         }
 
         button, select {
@@ -162,7 +162,7 @@
             box-shadow: 0 4px 10px rgba(233, 29, 99, 0.3);
             font-family: 'Barlow', sans-serif;
             text-transform: uppercase;
-            min-width: 100px; /* Ensure buttons don't get too small */
+            min-width: 100px;
         }
 
         button:hover, select:hover {
@@ -186,7 +186,7 @@
             -moz-appearance: none;
             appearance: none;
             cursor: pointer;
-            padding-right: 2.5rem; /* Space for dropdown arrow */
+            padding-right: 2.5rem;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.1L146.2%20227.4%2018.7%2074.5a17.6%2017.6%200%200%200-25.3-23.7c-7.2%206.5-7.7%2017.9-1.3%2025.3l137.8%20140.2c6.4%206.5%2017.7%206.5%2024.1%200l137.8-140.2a17.6%2017.6%200%200%200-12.9-30.7z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
@@ -202,7 +202,7 @@
 
     <div class="container">
         <h1>Synesthetic Color Visualizer</h1>
-        <p class="intro-paragraph">How a Synesthete Experiences Sound and Color</p>
+        <h2 class="subhead">How a Synesthete Experiences Sound and Color</h2>
         <p>Imagine you're listening to music, but at the same time, your brain is automatically drawing pictures or colors for you. That's a bit like what synesthesia is.</p>
         <p>Here's what makes it different from just thinking about colors:</p>
         <p><strong>It's Involuntary:</strong> A synesthete doesn't choose to see a color when they hear a note. It just happens, automatically, without any effort. It’s like how you can't help but see the color red when you look at a red apple.</p>
@@ -210,7 +210,7 @@
         <p><strong>It's a "Second" Sense:</strong> The person still hears the sound with their ears, but they also get an additional, internal experience in their mind's eye. It’s not a hallucination, but a very real and distinct perception.</p>
         <p>In our project, when you drag a note like E (yellow), the canvas immediately turns yellow. This is a direct model of how a synesthete's brain might work. It's a simple, consistent, and automatic connection that shows you the beauty of how their senses are cross-wired.</p>
         
-        <h2>Try the Interaction</h2>
+        <h2 class="instruction">TRY THE INTERACTION</h2>
         
         <div class="visualizer-area-wrapper" id="visualizerAreaWrapper">
             <canvas id="visualizerCanvas"></canvas>
@@ -258,17 +258,16 @@
 
             let synth, audioActive = false;
             let draggingButton = null;
-            let currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 }; // Default dark grey for initial canvas
+            let currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 };
 
-            // Map notes to specific colors, like a synesthete
             const noteToColorMap = {
-                'C4': { r: 231, g: 76, b: 60, a: 1 }, // Red
-                'D4': { r: 230, g: 126, b: 34, a: 1 }, // Orange
-                'E4': { r: 241, g: 196, b: 15, a: 1 }, // Yellow
-                'F4': { r: 46, g: 204, b: 113, a: 1 }, // Green
-                'G4': { r: 52, g: 152, b: 219, a: 1 }, // Blue
-                'A4': { r: 155, g: 89, b: 182, a: 1 }, // Purple
-                'B4': { r: 52, g: 73, b: 94, a: 1 }, // Dark Blue/Indigo
+                'C4': { r: 231, g: 76, b: 60, a: 1 },
+                'D4': { r: 230, g: 126, b: 34, a: 1 },
+                'E4': { r: 241, g: 196, b: 15, a: 1 },
+                'F4': { r: 46, g: 204, b: 113, a: 1 },
+                'G4': { r: 52, g: 152, b: 219, a: 1 },
+                'A4': { r: 155, g: 89, b: 182, a: 1 },
+                'B4': { r: 52, g: 73, b: 94, a: 1 },
             };
 
             let canvasWidth, canvasHeight;
@@ -298,7 +297,6 @@
             const animateVisualizer = () => {
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-                // Draw a single, large circle in the center
                 const radius = Math.min(canvasWidth, canvasHeight) * 0.4;
                 const { r, g, b, a } = currentVisualizerColor;
                 ctx.beginPath();
@@ -311,7 +309,6 @@
 
             const handleDragStart = (e) => {
                 if (!audioActive) {
-                    // Changed from console.log to an alert for user visibility
                     alert('Please click "Start" first to enable audio and interaction.');
                     return;
                 }
@@ -376,7 +373,6 @@
                 } else {
                     synth.triggerRelease(draggingButton.dataset.note);
                     draggingButton.remove();
-                    // Reset to a default color if no notes are active
                     if (visualizerAreaWrapper.querySelectorAll('.note-button.dropped').length === 0) {
                         currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 };
                     }
@@ -395,7 +391,6 @@
                     const noteToRemove = e.target.dataset.note;
                     synth.triggerRelease(noteToRemove);
                     e.target.remove();
-                    // Update color if any notes are still active
                     const droppedButtons = visualizerAreaWrapper.querySelectorAll('.note-button.dropped');
                     if (droppedButtons.length > 0) {
                         const lastDroppedNote = droppedButtons[droppedButtons.length - 1].dataset.note;
@@ -407,14 +402,14 @@
             });
 
             const handleReset = () => {
-                if (synth) { // Ensure synth is initialized before calling releaseAll
+                if (synth) {
                     synth.releaseAll();
                 }
                 const droppedButtons = visualizerAreaWrapper.querySelectorAll('.note-button.dropped');
                 droppedButtons.forEach(button => {
                     button.remove();
                 });
-                currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 }; // Reset to default canvas color
+                currentVisualizerColor = { r: 50, g: 50, b: 50, a: 1 };
             };
 
             startButton.addEventListener('click', async () => {
@@ -424,8 +419,8 @@
                     console.log('Audio context started successfully. You can now drag the notes.');
                     startButton.disabled = true;
                     startButton.textContent = "Started";
-                    setupAudio(); // Setup audio here after Tone.start()
-                    animateVisualizer(); // Start the visualizer loop
+                    setupAudio();
+                    animateVisualizer();
                 } catch (error) {
                     console.error("Failed to start audio context:", error);
                 }
@@ -438,7 +433,6 @@
             
             resetButton.addEventListener('click', handleReset);
             
-            // Initial call to animateVisualizer to set the default canvas color
             animateVisualizer();
         };
     </script>
